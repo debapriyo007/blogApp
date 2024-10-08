@@ -1,0 +1,161 @@
+import React, { useContext, useEffect, useState } from 'react';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import { ImCross } from 'react-icons/im';
+import axios from 'axios';
+import { URL } from '../url';
+import { useNavigate, useParams } from 'react-router-dom';
+import { UserContext } from '../context/UserContext';
+import toast from 'react-hot-toast' 
+
+const UpdatePost = () => {
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
+  const postId = useParams().id;
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
+  const [file, setFile] = useState(null);
+  const [cat, setCat] = useState("");
+  const [cats, setCats] = useState([]);
+
+  const fetchPost = async () => {
+    try {
+      const res = await axios.get(URL + "/api/posts/" + postId);
+      setTitle(res.data.title);
+      setDesc(res.data.desc);
+      setFile(res.data.photo);
+      setCats(res.data.categories);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleUpdatePost = async (e) => {
+    e.preventDefault();
+    const post = {
+      title,
+      desc,
+      username: user.username,
+      userId: user._id,
+      categories: cats,
+    };
+
+    // Handle the image file.
+    if (file && typeof file !== 'string') {
+      const data = new FormData();
+      const filename = Date.now() + file.name;
+      data.append("img", filename);
+      data.append("file", file);
+      post.photo = filename;
+      // Image Upload.
+      try {
+        const imageUpload = await axios.post(URL + "/api/upload", data);
+        console.log(imageUpload.data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    // Post update.
+    try {
+      const res = await axios.put(URL + "/api/posts/" + postId, post, { withCredentials: true });
+      console.log(res.data); // Log the response to debug
+      toast.success("Post Updated Successfully!");
+      navigate("/posts/post/" + res.data._id);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchPost();
+  }, [postId]);
+
+  const addCategory = () => {
+    let updateCat = [...cats];
+    updateCat.push(cat);
+    setCat('');
+    setCats(updateCat);
+  };
+
+  const deleteCategory = () => {
+    let updateCat = [...cats];
+    updateCat.pop();
+    setCats(updateCat);
+  };
+
+  return (
+    <div>
+      <Navbar />
+      <div className='px-8 md:px-[200px] mt-8'>
+        <h1 className='font-bold md:text-3xl text-2xl mb-6 text-center'>Update a Post</h1>
+        <form action="" className='w-full flex flex-col space-y-6 md:space-y-8 mt-4'>
+          <input
+            onChange={(e) => setTitle(e.target.value)}
+            value={title}
+            type="text"
+            className='border border-gray-300 px-4 py-2 outline-none rounded-md focus:border-black   transition duration-200 ease-in-out'
+            placeholder='Enter post title'
+          />
+          <input
+            onChange={(e) => setFile(e.target.files[0])}
+            type="file"
+            className='border border-gray-300 px-4 py-2 outline-none rounded-md focus:border-black   transition duration-200 ease-in-out'
+          />
+          <div className='flex flex-col'>
+            <div className='flex items-center space-x-4 md:space-x-8'>
+              <input
+                value={cat}
+                onChange={(e) => setCat(e.target.value)}
+                type="text"
+                className='border border-gray-300 px-4 py-2 outline-none rounded-md focus:border-black   transition duration-200 ease-in-out'
+                placeholder='Enter post category'
+              />
+              <div
+                onClick={addCategory}
+                className='bg-black text-white px-8 py-2  cursor-pointer rounded-md hover:bg-gray-800 transition duration-200 ease-in-out'
+              >
+                Add
+              </div>
+            </div>
+
+            {/* Categories */}
+            <div className='flex mt-3 flex-wrap'>
+              {cats?.map((c, index) => (
+                <div
+                  key={index}
+                  className='flex justify-center items-center space-x-2 mr-4 mb-2 bg-gray-200 py-1 rounded-md px-2'
+                >
+                  <p className='px-1'>{c}</p>
+                  <p
+                    onClick={deleteCategory}
+                    className='text-white bg-red-500 rounded-full cursor-pointer p-1 text-sm hover:bg-red-600 transition duration-200 ease-in-out'
+                  >
+                    <ImCross />
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <textarea
+            rows={10}
+            onChange={(e) => setDesc(e.target.value)}
+            value={desc}
+            className='border border-gray-300 px-4 py-2 outline-none rounded-md focus:border-black   transition duration-200 ease-in-out'
+            placeholder='Enter post description'
+          ></textarea>
+          <button
+            onClick={handleUpdatePost}
+            className='bg-black text-white w-full md:w-[15%] mx-auto px-4 py-3 md:text-xl text-md rounded-md hover:bg-gray-800 transition duration-200 ease-in-out'
+          >
+            Update Post
+          </button>
+        </form>
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
+export default UpdatePost;
