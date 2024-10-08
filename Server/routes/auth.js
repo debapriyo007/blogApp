@@ -48,6 +48,7 @@ router.post("/login", async(req, res)=>{
         const {password, ...info} = user._doc
         res.cookie("token", token).status(200).json({
             id:user._id,
+            username:user.username,
             message:"Login successful",
             info
         })
@@ -77,7 +78,8 @@ router.get("/logout", (req, res)=>{
 
 //REFECT USER , WE DON'T AUTO LOGOUT. (*THIS IS USE IN CONTEXT DIR)
 router.get('/refetch' , (req, res)=>{
-    const token = req.cookies.token
+    const {token} = req.cookies;
+
     jwt.verify(token, process.env.SECRET, {} , async(err, data) =>{
         if(err){
             return res.status(404).json(err)
