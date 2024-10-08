@@ -44,9 +44,10 @@ router.post("/login", async(req, res)=>{
             return res.status(400).json("Wrong password!")
         }
         //create token
-        const token = jwt.sign({_id:user._id, username:user.username, email:user.email}, process.env.SECRET, {expiresIn:"1d"})
+        const token = jwt.sign({id:user._id, username:user.username, email:user.email}, process.env.SECRET, {expiresIn:"1d"})
         const {password, ...info} = user._doc
         res.cookie("token", token).status(200).json({
+            id:user._id,
             message:"Login successful",
             info
         })
