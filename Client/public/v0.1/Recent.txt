@@ -1,0 +1,31 @@
+<div className="px-8 md:px-[200px] min-h-[80vh]">
+        {loader ? (
+          <div className="h-[40vh] flex justify-center items-center">
+            <Loader />
+          </div>
+        ) : !noResult ? (
+          <>
+            {/* Display only the number of posts based on visibleCount */}
+            {posts.slice(0, visibleCount).map((post) => (
+              <Link key={post._id} to={user ? `/posts/post/${post._id}` : "/login"}>
+                <HomePost post={post} />
+              </Link>
+            ))}
+            {/* Show 'More' button only if there are hidden posts */}
+            {visibleCount < posts.length && (
+              <div className="flex justify-center mt-4">
+                <button
+                  className="bg-black text-white py-2 px-7 rounded"
+                  onClick={handleShowMore}
+                >
+                  More
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <h1 className="text-2xl text-center font-bold mt-52">
+            No Post available! <span className="text-3xl">🥱</span>
+          </h1>
+        )}
+      </div>
