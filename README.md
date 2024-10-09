@@ -1,15 +1,7 @@
 # Blog-App 📝
 ### This is a simple blog app that allows users to create, read, update, and delete blog posts.The app build using react, express, and mongodb.
 
-<br>
 
-![Gif](https://i.gifer.com/WwaP.gif)
-
-<br>
-<br>
-<br>
-<br>
-<br>
 <br>
 <br>
 <br>
