@@ -29,7 +29,7 @@ const Navbar = () => {
       {showMessage && (
         <div className='bg-gradient-to-r from-black to-slate-800 p-4 flex justify-between items-center text-center'>
          
-          <p className='text-white mx-auto md:text-[16px]  text-[13px] font-black '>There are some server issue.We are working on it❗️</p>
+          <p className='text-white mx-auto md:text-[16px]  text-[13px] font-black '>There are some server issue,fixed it soon❗️</p>
           <RxCrossCircled className='cursor-pointer text-white' onClick={dismissMessage} size={22} />
         </div>
       )}
