@@ -4,7 +4,9 @@ const UserModel = require("../models/User")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 
-// REGISTER
+
+
+//REGISTER
 router.post("/register", async(req, res)=>{ 
     try {
          const {username, email, password} = req.body
@@ -25,7 +27,10 @@ router.post("/register", async(req, res)=>{
     }
 })
 
-// LOGIN
+
+
+//LOGIN
+
 router.post("/login", async(req, res)=>{
     try {
         // find user base on the email.
@@ -39,18 +44,21 @@ router.post("/login", async(req, res)=>{
             return res.status(400).json("Wrong password!")
         }
         //create token
-        const token = jwt.sign({_id:user._id, username:user.username, email:user.email}, process.env.SECRET, {expiresIn:"1d"})
+        const token = jwt.sign({id:user._id, username:user.username, email:user.email}, process.env.SECRET, {expiresIn:"1d"})
         const {password, ...info} = user._doc
-        res.cookie("token", token).status(200).json({
-            message:"Login successful",
-            info
-        })
+        res.cookie("token", token).status(200).json({info, token})
+        // res.status(200).json({
+        //     message:"Login successful",
+        //     user,
+        // })
     } catch (err) {
         res.status(500).json(err)
     }
 })
 
-// LOGOUT
+
+//LOGOUT
+
 router.get("/logout", (req, res)=>{
     try {
         res.clearCookie("token", {sameSite:"none", secure:true}).status(200).json({
@@ -58,26 +66,24 @@ router.get("/logout", (req, res)=>{
         })
     } catch (err) {
         res.status(500).json(err)
+        
     }
 })
 
-// REFETCH USER
-router.get('/refetch', (req, res) => {
-    const token = req.cookies.token;
 
-    // Check if token is present
-    if (!token) {
-        return res.status(400).json({ name: "JsonWebTokenError", message: "jwt must be provided" });
-    }
-
-    jwt.verify(token, process.env.SECRET, {}, async (err, data) => {
-        if (err) {
-            return res.status(404).json(err);
+//REFECT USER , WE DON'T AUTO LOGOUT. (*THIS IS USE IN CONTEXT DIR)
+router.get('/refetch' , (req, res)=>{
+    const token = req.cookies.token
+    // console.log(token)
+   
+    jwt.verify(token, process.env.SECRET, {} , async(err, data) =>{
+        if(err){
+            return res.status(404).json(err)
         }
-        if (data) {
-            res.status(200).json(data);
+        if(data){
+            res.status(200).json(data)
         }
-    });
+    })
 })
 
 module.exports = router
